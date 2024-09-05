@@ -57,7 +57,6 @@ async function execute({
   method = "POST",
   headers = new GQLHeaders(),
 }) {
-  console.log("endpoint");
   test.gql_start = new Date();
   const response = await fetch(endpoint, {
     method: method,

@@ -13,7 +13,7 @@ describe('Starwars', function () {
   it('hero-data', function () {
      executeOK({
       test: this,
-      endpoint: endpoint,
+      endpoint,
       request: {
         query: '{hero {name}}',
       },
