@@ -47,6 +47,7 @@ GQLResponse.prototype.expectOK = function () {
 
 // Executes a GraphQL HTTP request against the endpoint returning the response and the body as JSON in GQLResponse.
 async function execute(
+  test,
   endpoint,
   request,
   method = 'POST',
@@ -57,9 +58,23 @@ async function execute(
     headers: headers.headers,
     body: JSON.stringify(request),
   })
-  return new GQLResponse(response, await response.json());
+  test.gql_response = new GQLResponse(response, await response.json());
+  return test.gql_response;
+}
+
+// Logs information about a request on a failure.
+function logOnFail() {
+  if (this.currentTest.state === 'passed') {
+    return
+  }
+  if (this.gql_response) {
+    console.log("HTTP status", this.gql_response.response.status)
+    console.log("HTTP response: ", JSON.stringify(this.gql_response.body))
+  }
 }
 
 exports.execute = execute
 exports.GQLHeaders = GQLHeaders
 exports.GQLResponse = GQLResponse
+exports.logOnFail = logOnFail
+

@@ -8,11 +8,13 @@ Testing of GraphQL APIs
 
 ```
 describe('Starwars', function () {
+  afterEach('log-failure', logOnFail);
+
   it('hero', async function () {
-    let response = await execute(endpoint, {
+    let response = await execute(this, endpoint, {
       query: '{hero {name}}',
     })
-    response.expectOK()
+    response.expectOK();
   })
 })
 ```
