@@ -6,5 +6,8 @@
     "node-fetch": "~2.6.1"
   },
   "keywords": [],
-  "author": ""
+  "author": "",
+  "devDependencies": {
+    "chai-graphql": "^4.0.0"
+  }
 }
