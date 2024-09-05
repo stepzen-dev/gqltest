@@ -1,0 +1,10 @@
+{
+  "name": "stepzen-dev-gqltest",
+  "version": "0.0.1",
+  "dependencies": {
+    "chai": "4.3.6",
+    "node-fetch": "~2.6.1"
+  },
+  "keywords": [],
+  "author": ""
+}
