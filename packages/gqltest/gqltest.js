@@ -50,6 +50,8 @@ GQLResponse.prototype.expectOK = function () {
 // Sets: to allow access in afterEach.
 // test.gql_start - time on entry
 // test.gql_response - returned GQLResponse
+//
+// headers is optional but is expected to be an instance of GQLHeaders or a function returning an instance of GQLHeaders.
 async function execute({
   test,
   endpoint,
@@ -57,6 +59,9 @@ async function execute({
   method = "POST",
   headers = new GQLHeaders(),
 }) {
+  if (headers instanceof Function) {
+    headers = headers();
+  }
   test.gql_start = new Date();
   const response = await fetch(endpoint, {
     method: method,
