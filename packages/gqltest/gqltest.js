@@ -107,8 +107,56 @@ async function executeOK({
   return response;
 }
 
+// List/Table driven testing using mocha.
+// The GraphQL request parameters can be provided in request as an object
+// or as individual values.
+// These are identical:
+// {label:'tn', request: {query:"{__typename"}}
+// {label:'tn', query:"{__typename"}}
+//
+// request takes precedence.
+// name is an alternative to label for the test name.
+async function runtests(label, endpoint, headers, tests) {
+  describe(label, function() {
+    afterEach('log-failure', logOnFail)
+    tests.forEach(
+      ({ label, name, request ,documentId, query, variables, operationName, expected }) => {
+        if (!label) {
+          label = name;
+        }
+        it(label, async function () {
+          if (!request) {
+            request = {}
+            if (documentId) {
+              request.documentId = documentId
+            }
+            if (query) {
+              request.query = query
+            }
+            if (operationName) {
+              request.operationName = operationName
+            }
+            if (variables) {
+              request.variables = variables
+            }
+          }
+          return await executeOK({
+            test: this,
+            endpoint: endpoint,
+            headers: headers,
+            request: request,
+            expected: expected,
+          }
+          );
+        });
+      }
+    );
+  })
+}
+
 exports.execute = execute;
 exports.executeOK = executeOK;
+exports.runtests = runtests;
 exports.GQLHeaders = GQLHeaders;
 exports.GQLResponse = GQLResponse;
 exports.logOnFail = logOnFail;
