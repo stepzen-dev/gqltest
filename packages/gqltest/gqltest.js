@@ -1,6 +1,7 @@
 // Copyright IBM Corp. 2020, 2024
 
 const fs = require("fs");
+const path = require("path");
 const fetch = require("node-fetch");
 const chai = require("chai");
 const chaiGraphQL = require("chai-graphql");
@@ -106,7 +107,7 @@ async function execute({
   response = await _execute({ test, endpoint, request, method, headers });
   response.expectOK();
   if (expected) {
-    assertExpected(response, expected);
+    assertExpected(response, expected, test.gql_title);
   }
   return response;
 }
@@ -120,8 +121,8 @@ async function execute({
 // Workarounds for (1) if "data" or "errors" are the root fields under "data" in a reponse:
 //  - use approach (2)
 //  - use aliases in request: {d:data e:errors}
-function assertExpected(response, expected) {
-  expected = optionalJSONFromFile(expected);
+function assertExpected(response, expected, label) {
+  expected = optionalJSONFromFile(expected, label);
 
   // (2) - Non-error response at the root.
   if (Object.hasOwn(expected, "data") && !Object.hasOwn(expected, "errors")) {
@@ -155,6 +156,9 @@ async function runtests(label, endpoint, headers, tests) {
   }
 
   describe(label, function () {
+    beforeEach("test-info", function() {
+      this.gql_title = this.currentTest.title;
+    })
     afterEach("log-failure", logOnFail);
     tests.forEach(
       ({
@@ -200,9 +204,14 @@ async function runtests(label, endpoint, headers, tests) {
 }
 
 // optional loads a value from a file and parse as JSON if it is a string.
-function optionalJSONFromFile(value) {
+// If value is a directory then the file loaded is `value/label` where
+// label is intended to be the test label.
+function optionalJSONFromFile(value, label) {
   if (typeof value != "string") {
     return value;
+  }
+  if (label && fs.statSync(value).isDirectory()) {
+    value = path.join(value, `${label}.json`)
   }
   return JSON.parse(fs.readFileSync(value, { encoding: "utf-8" }));
 }

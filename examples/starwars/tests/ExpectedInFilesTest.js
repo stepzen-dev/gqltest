@@ -5,6 +5,10 @@ const stepzen = require("gqltest/packages/gqltest/stepzen.js");
 const endpoint =
   "https://stepzen-chester.us-east-a.ibm.stepzen.net/examples/starwars/graphql";
 
+// directory for expected files.
+// If this is passed in as `expected` for a test then
+// the test label (or title) with suffix `.json` is used
+// as the expected file name within the directory.
 const expectedDir = path.join(__dirname, "expected");
 
 describe("expected-from-files", function () {
@@ -18,13 +22,15 @@ describe("expected-from-files", function () {
     {
       label: "human-1001",
       query: "query {human(id:1001) {name}}",
+      // explicit path the the expected file
       expected: path.join(expectedDir, "human-1001.json"),
     },
     {
       label: "droid-2000",
       query: "query ($id:ID!) {droid(id:$id) {name}}",
       variables: { id: 2000 },
-      expected: path.join(expectedDir, "droid-2000.json"),
+      // ${label}.json in expectedDir will be the expected file.
+      expected: path.join(expectedDir),
     },
     {
       // expected has the full response including "data"
@@ -32,7 +38,7 @@ describe("expected-from-files", function () {
       query:
         "query ($id:ID!) {human(id:$id) {id name homePlanet friends @sort {name}}}",
       variables: { id: 1003 },
-      expected: path.join(expectedDir, "human-1003-full.json"),
+      expected: path.join(expectedDir),
     },
   ];
   gqltest.runtests("starwars", endpoint, stepzen.public(), tests);
