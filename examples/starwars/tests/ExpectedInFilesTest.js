@@ -5,7 +5,7 @@ const stepzen = require("gqltest/packages/gqltest/stepzen.js");
 const endpoint =
   "https://stepzen-chester.us-east-a.ibm.stepzen.net/examples/starwars/graphql";
 
-const expected = path.join(__dirname, "expected");
+const expectedDir = path.join(__dirname, "expected");
 
 describe("expected-from-files", function () {
   this.timeout(5000);
@@ -18,13 +18,13 @@ describe("expected-from-files", function () {
     {
       label: "human-1001",
       query: "query {human(id:1001) {name}}",
-      expected: path.join(expected, "human-1001.json"),
+      expected: path.join(expectedDir, "human-1001.json"),
     },
     {
       label: "droid-2000",
       query: "query ($id:ID!) {droid(id:$id) {name}}",
       variables: { id: 2000 },
-      expected: path.join(expected, "droid-2000.json"),
+      expected: path.join(expectedDir, "droid-2000.json"),
     },
   ];
   gqltest.runtests("starwars", endpoint, stepzen.public(), tests);
