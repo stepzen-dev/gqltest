@@ -128,17 +128,27 @@ async function execute({
 //
 // (1) value rooted at `data`: {customer: {name: "Fred"}}
 // (2) root value with no errors: {data: {customer: {name: "Fred"}}}
+// (3) not implemented - root value with field errors: {data: {customer: {name: "Fred" email:null}}, "errors":[...]}
+// (4) not implemented - root value with request errors: {"errors":[...]}
 //
-// Workarounds for (1) if "data" or "errors" are the root fields under "data" in a reponse:
+// Workarounds for (1) if "data" or "errors" are the root fields under "data" in a response:
 //  - use approach (2)
 //  - use aliases in request: {d:data e:errors}
 function assertExpected(response, expected, label) {
   expected = optionalJSONFromFile(expected, label);
 
-  // (2) - Non-error response at the root.
-  if (Object.hasOwn(expected, "data") && !Object.hasOwn(expected, "errors")) {
+  // (2),(3) - Non-error response at the root.
+  if (Object.hasOwn(expected, "data")) {
+    if  (Object.hasOwn(expected, "errors")) {
+      chai.expect.fail("field errors in response not yet supported.")
+    }
     chai.expect(response.body).to.deep.equal(expected);
     return;
+  }
+
+  // (4) request errors
+  if (Object.hasOwn(expected, "errors")) {
+    chai.expect.fail("request errors in response not yet supported.")
   }
 
   // (1) - Non-error response rooted at data.
