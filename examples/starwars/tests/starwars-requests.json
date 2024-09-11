@@ -1,0 +1,24 @@
+[
+  {
+    "label": "query",
+    "query": "query {human(id:1001) {name}}",
+    "expected": {
+      "human": {
+        "name": "Darth Vader"
+      }
+    }
+  },
+  {
+    "label": "request",
+    "request": {
+      "query": "query Episode($ep:Episode!) {hero(episode: $ep) {name}}",
+      "variables": { "ep": "JEDI" },
+      "operationName": "Episode"
+    },
+    "expected": {
+      "hero": {
+        "name": "R2-D2"
+      }
+    }
+  }
+]

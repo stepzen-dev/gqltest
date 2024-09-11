@@ -1,0 +1,17 @@
+[
+  {
+    "label": "query-fields",
+    "query": "query {__schema{queryType{fields{name}}}}",
+    "expected": {
+      "__schema": {
+        "queryType": {
+          "fields": [
+            { "name": "droid" },
+            { "name": "hero" },
+            { "name": "human" }
+          ]
+        }
+      }
+    }
+  }
+]

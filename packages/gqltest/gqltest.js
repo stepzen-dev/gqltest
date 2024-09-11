@@ -1,8 +1,10 @@
 // Copyright IBM Corp. 2020, 2024
 
+const fs = require("fs");
 const fetch = require("node-fetch");
 const chai = require("chai");
 const chaiGraphQL = require("chai-graphql");
+const { setHeapSnapshotNearHeapLimit } = require("v8");
 chai.use(chaiGraphQL);
 
 class GQLHeaders {
@@ -47,13 +49,8 @@ GQLResponse.prototype.expectOK = function () {
   return this;
 };
 
-// Executes a GraphQL HTTP request against the endpoint returning the response and the body as JSON in GQLResponse.
-// Sets: to allow access in afterEach.
-// test.gql_start - time on entry
-// test.gql_response - returned GQLResponse
-//
-// headers is optional but is expected to be an instance of GQLHeaders or a function returning an instance of GQLHeaders.
-async function execute({
+
+async function _execute({
   test,
   endpoint,
   request,
@@ -90,9 +87,16 @@ function logOnFail() {
   }
 }
 
-// Execute a GraphQL HTTP request requiring a 200 response and no errors.
-// Optional validate the response.
-async function executeOK({
+// Executes a GraphQL HTTP request against the endpoint returning the response and the body as JSON in GQLResponse.
+// Sets: to allow access in afterEach.
+// test.gql_start - time on entry
+// test.gql_response - returned GQLResponse
+//
+// headers is optional but is expected to be an instance of GQLHeaders or a function returning an instance of GQLHeaders.
+
+// A status code of 200 is required.
+// Expected is compared to the response body.
+async function execute({
   test,
   endpoint,
   request,
@@ -100,7 +104,7 @@ async function executeOK({
   headers = new GQLHeaders(),
   expected = undefined,
 }) {
-  response = await execute({ test, endpoint, request, method, headers });
+  response = await _execute({ test, endpoint, request, method, headers });
   response.expectOK();
   if (expected) {
     chai.assert.graphQL(response.body, expected);
@@ -118,45 +122,65 @@ async function executeOK({
 // request takes precedence.
 // name is an alternative to label for the test name.
 async function runtests(label, endpoint, headers, tests) {
+  try {
+    tests = optionalJSONFromFile(tests);
+  } catch (err) {
+    describe(`load-failed: ${tests}`, function() {
+      it('error', function() {
+        chai.expect.fail(err.toString())
+      })
+  });
+  return
+}
+  
+
   describe(label, function() {
     afterEach('log-failure', logOnFail)
-    tests.forEach(
-      ({ label, name, request ,documentId, query, variables, operationName, expected }) => {
-        if (!label) {
-          label = name;
+      tests.forEach(
+        ({ label, name, request ,documentId, query, variables, operationName, expected }) => {
+          if (!label) {
+            label = name;
+          }
+          it(label, async function () {
+            if (!request) {
+              request = {}
+              if (documentId) {
+                request.documentId = documentId
+              }
+              if (query) {
+                request.query = query
+              }
+              if (operationName) {
+                request.operationName = operationName
+              }
+              if (variables) {
+                request.variables = variables
+              }
+            }
+            return await execute({
+              test: this,
+              endpoint: endpoint,
+              headers: headers,
+              request: request,
+              expected: expected,
+            }
+            );
+          });
         }
-        it(label, async function () {
-          if (!request) {
-            request = {}
-            if (documentId) {
-              request.documentId = documentId
-            }
-            if (query) {
-              request.query = query
-            }
-            if (operationName) {
-              request.operationName = operationName
-            }
-            if (variables) {
-              request.variables = variables
-            }
-          }
-          return await executeOK({
-            test: this,
-            endpoint: endpoint,
-            headers: headers,
-            request: request,
-            expected: expected,
-          }
-          );
-        });
-      }
-    );
-  })
+      );
+    })
+
+}
+
+// optional loads a value from a file and parse as JSON if it is a string.
+function optionalJSONFromFile(value) {
+  if (typeof(value) != "string") {
+    return value
+  }
+  return JSON.parse(fs.readFileSync(value, {encoding: 'utf-8'}));
 }
 
 exports.execute = execute;
-exports.executeOK = executeOK;
 exports.runtests = runtests;
 exports.GQLHeaders = GQLHeaders;
 exports.GQLResponse = GQLResponse;

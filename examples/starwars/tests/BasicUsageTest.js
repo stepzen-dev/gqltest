@@ -7,8 +7,13 @@ endpoint =
 describe("basic-usage", function () {
   this.timeout(5000);
   this.slow(1000);
+
+  // automatically logs the complete response when a test fails,
+  // useful for debugging failures.
+  afterEach("log-failure", gqltest.logOnFail);
+
   it("query", async function () {
-    await gqltest.executeOK({
+    await gqltest.execute({
       test: this,
       endpoint,
       request: {
@@ -19,7 +24,7 @@ describe("basic-usage", function () {
     });
   });
   it("variables", async function () {
-    await gqltest.executeOK({
+    await gqltest.execute({
       test: this,
       endpoint,
       request: {
@@ -31,7 +36,7 @@ describe("basic-usage", function () {
     });
   });
   it("operationName", async function () {
-    await gqltest.executeOK({
+    await gqltest.execute({
       test: this,
       endpoint,
       request: {

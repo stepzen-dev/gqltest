@@ -8,6 +8,9 @@ describe("table-driven", function () {
   this.timeout(5000);
   this.slow(1000);
 
+  // Note gqltest.runtests always adds in gqltest.logOnFail)
+  // so no need to add it here.
+
   const tests = [
     {
       label: "query",

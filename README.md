@@ -11,7 +11,7 @@ describe('Starwars', function () {
   afterEach('log-failure', logOnFail);
 
   it('hero-data', function () {
-     executeOK({
+     execute({
       test: this,
       endpoint,
       request: {
