@@ -1,6 +1,6 @@
 const fs = require("fs");
 const path = require("path");
-const gqltest = require("../../../../gqltest/packages/gqltest/gqltest.js");
+const gqltest = require("gqltest/packages/gqltest/gqltest.js");
 const stepzen = require("gqltest/packages/gqltest/stepzen.js");
 
 endpoint =
