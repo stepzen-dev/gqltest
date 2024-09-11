@@ -1,5 +1,5 @@
-const gqltest = require("../../../../gqltest/packages/gqltest/gqltest.js");
-const stepzen = require("../../../../gqltest/packages/gqltest/stepzen.js");
+const gqltest = require("gqltest/packages/gqltest/gqltest.js");
+const stepzen = require("gqltest/packages/gqltest/stepzen.js");
 
 const endpoint =
   "https://stepzen-chester.us-east-a.ibm.stepzen.net/examples/starwars/graphql";
