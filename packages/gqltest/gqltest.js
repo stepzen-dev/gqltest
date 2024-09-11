@@ -8,6 +8,7 @@ chai.use(chaiGraphQL);
 class GQLHeaders {
   constructor() {
     this.headers = new Headers({
+      "Accept": "application/json",
       "Content-Type": "application/json",
     });
   }

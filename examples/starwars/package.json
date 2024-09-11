@@ -1,0 +1,15 @@
+{
+  "name": "gqltest-starwars-test",
+  "version": "0.0.1",
+  "type": "commonjs",
+  "scripts": {
+    "test": "mocha tests/*Test.js"
+  },
+  "dependencies": {
+    "chain": "^0.2.1",
+    "mocha": "^10.0.0",
+    "gqltest": "stepzen-dev/gqltest#v0.1"
+  },
+  "keywords": [],
+  "author": ""
+}
