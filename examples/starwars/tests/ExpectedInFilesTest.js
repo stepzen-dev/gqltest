@@ -1,5 +1,5 @@
 const path = require("path");
-const gqltest = require("../../../../gqltest/packages/gqltest/gqltest.js");
+const gqltest = require("gqltest/packages/gqltest/gqltest.js");
 const stepzen = require("gqltest/packages/gqltest/stepzen.js");
 
 const endpoint =
@@ -25,6 +25,14 @@ describe("expected-from-files", function () {
       query: "query ($id:ID!) {droid(id:$id) {name}}",
       variables: { id: 2000 },
       expected: path.join(expectedDir, "droid-2000.json"),
+    },
+    {
+      // expected has the full response including "data"
+      label: "human-1003-full",
+      query:
+        "query ($id:ID!) {human(id:$id) {id name homePlanet friends @sort {name}}}",
+      variables: { id: 1003 },
+      expected: path.join(expectedDir, "human-1003-full.json"),
     },
   ];
   gqltest.runtests("starwars", endpoint, stepzen.public(), tests);

@@ -10,7 +10,7 @@ chai.use(chaiGraphQL);
 class GQLHeaders {
   constructor() {
     this.headers = new Headers({
-      "Accept": "application/json",
+      Accept: "application/json",
       "Content-Type": "application/json",
     });
   }
@@ -48,7 +48,6 @@ GQLResponse.prototype.expectOK = function () {
   chai.assert.notGraphQLError(this.body);
   return this;
 };
-
 
 async function _execute({
   test,
@@ -112,8 +111,25 @@ async function execute({
   return response;
 }
 
+// assertExpected supports these values for expected:
+// For example with this response:
+//
+// (1) value rooted at `data`: {customer: {name: "Fred"}}
+// (2) root value with no errors: {data: {customer: {name: "Fred"}}}
+//
+// Workarounds for (1) if "data" or "errors" are the root fields under "data" in a reponse:
+//  - use approach (2)
+//  - use aliases in request: {d:data e:errors}
 function assertExpected(response, expected) {
   expected = optionalJSONFromFile(expected);
+
+  // (2) - Non-error response at the root.
+  if (Object.hasOwn(expected, "data") && !Object.hasOwn(expected, "errors")) {
+    chai.expect(response.body).to.deep.equal(expected);
+    return;
+  }
+
+  // (1) - Non-error response rooted at data.
   chai.assert.graphQL(response.body, expected);
 }
 
@@ -130,59 +146,65 @@ async function runtests(label, endpoint, headers, tests) {
   try {
     tests = optionalJSONFromFile(tests);
   } catch (err) {
-    describe(`load-failed: ${tests}`, function() {
-      it('error', function() {
-        chai.expect.fail(err.toString())
-      })
-  });
-  return
-}
-  
+    describe(`load-failed: ${tests}`, function () {
+      it("error", function () {
+        chai.expect.fail(err.toString());
+      });
+    });
+    return;
+  }
 
-  describe(label, function() {
-    afterEach('log-failure', logOnFail)
-      tests.forEach(
-        ({ label, name, request ,documentId, query, variables, operationName, expected }) => {
-          if (!label) {
-            label = name;
-          }
-          it(label, async function () {
-            if (!request) {
-              request = {}
-              if (documentId) {
-                request.documentId = documentId
-              }
-              if (query) {
-                request.query = query
-              }
-              if (operationName) {
-                request.operationName = operationName
-              }
-              if (variables) {
-                request.variables = variables
-              }
-            }
-            return await execute({
-              test: this,
-              endpoint: endpoint,
-              headers: headers,
-              request: request,
-              expected: expected,
-            }
-            );
-          });
+  describe(label, function () {
+    afterEach("log-failure", logOnFail);
+    tests.forEach(
+      ({
+        label,
+        name,
+        request,
+        documentId,
+        query,
+        variables,
+        operationName,
+        expected,
+      }) => {
+        if (!label) {
+          label = name;
         }
-      );
-    })
-
+        it(label, async function () {
+          if (!request) {
+            request = {};
+            if (documentId) {
+              request.documentId = documentId;
+            }
+            if (query) {
+              request.query = query;
+            }
+            if (operationName) {
+              request.operationName = operationName;
+            }
+            if (variables) {
+              request.variables = variables;
+            }
+          }
+          return await execute({
+            test: this,
+            endpoint: endpoint,
+            headers: headers,
+            request: request,
+            expected: expected,
+          });
+        });
+      }
+    );
+  });
 }
 
 // optional loads a value from a file and parse as JSON if it is a string.
 function optionalJSONFromFile(value) {
-  if (typeof(value) != "string") {
-    return value
+  if (typeof value != "string") {
+    return value;
   }
-  return JSON.parse(fs.readFileSync(value, {encoding: 'utf-8'}));
+  return JSON.parse(fs.readFileSync(value, { encoding: "utf-8" }));
 }
 
 exports.execute = execute;

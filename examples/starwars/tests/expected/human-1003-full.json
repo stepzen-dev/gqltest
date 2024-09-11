@@ -1,0 +1,15 @@
+{
+  "data": {
+    "human": {
+      "id": "1003",
+      "name": "Leia Organa",
+      "homePlanet": "Alderaa",
+      "friends": [
+        { "name": "C-3PO" },
+        { "name": "Han Solo" },
+        { "name": "Luke Skywalker" },
+        { "name": "R2-D2" }
+      ]
+    }
+  }
+}
