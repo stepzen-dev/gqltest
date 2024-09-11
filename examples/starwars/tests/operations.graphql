@@ -1,0 +1,10 @@
+query Human($id: ID!) {
+  human(id: $id) {
+    name
+  }
+}
+query Droid($id: ID!) {
+  droid(id: $id) {
+    name
+  }
+}
