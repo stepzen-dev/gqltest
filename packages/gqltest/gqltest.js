@@ -107,9 +107,14 @@ async function execute({
   response = await _execute({ test, endpoint, request, method, headers });
   response.expectOK();
   if (expected) {
-    chai.assert.graphQL(response.body, expected);
+    assertExpected(response, expected);
   }
   return response;
+}
+
+function assertExpected(response, expected) {
+  expected = optionalJSONFromFile(expected);
+  chai.assert.graphQL(response.body, expected);
 }
 
 // List/Table driven testing using mocha.
