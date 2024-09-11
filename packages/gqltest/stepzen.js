@@ -22,6 +22,17 @@ function public() {
   return new GQLHeaders();
 }
 
+// introspection tests is a collection of tests ensuring that introspection capabilities work.
+// The requests are invoked but no expected data.
+const introspectionTests = [
+  {
+    // By default StepZen endpoints are setup for Apollo Federation.
+    label: 'federation-service',
+    query: '{_service { sdl }}',
+  },
+]
+
 exports.admin = admin;
 exports.public = public;
 exports.regular = regular;
+exports.introspectionTests = introspectionTests;

@@ -5,8 +5,9 @@ const path = require("path");
 const fetch = require("node-fetch");
 const chai = require("chai");
 const chaiGraphQL = require("chai-graphql");
-const { setHeapSnapshotNearHeapLimit } = require("v8");
 chai.use(chaiGraphQL);
+
+const {introspectionTests} = require("./_introspection.js");
 
 class GQLHeaders {
   constructor() {
@@ -221,3 +222,4 @@ exports.runtests = runtests;
 exports.GQLHeaders = GQLHeaders;
 exports.GQLResponse = GQLResponse;
 exports.logOnFail = logOnFail;
+exports.introspectionTests = introspectionTests;

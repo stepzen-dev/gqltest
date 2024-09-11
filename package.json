@@ -2,6 +2,7 @@
   "name": "stepzen-dev-gqltest",
   "version": "0.0.1",
   "dependencies": {
+    "graphql": "^16.9.0",
     "chai": "4.3.6",
     "chai-graphql": "^4.0.0",
     "node-fetch": "~2.6.1"
