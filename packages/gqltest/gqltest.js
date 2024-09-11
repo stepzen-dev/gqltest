@@ -9,12 +9,22 @@ chai.use(chaiGraphQL);
 
 const {introspectionTests} = require("./_introspection.js");
 
+// GQLHeaders holds headers for a request.
+// The environment variable GQLTEST_HEADERS can be used
+// to add to headers during the constructure.
+//
+// GQLTEST_HEADERS='{"X-Trace": "abc"}' npm test
 class GQLHeaders {
   constructor() {
     this.headers = new Headers({
       Accept: "application/json",
       "Content-Type": "application/json",
     });
+    if (process.env.GQLTEST_HEADERS) {
+      for (let [name,value] of Object.entries(JSON.parse(process.env.GQLTEST_HEADERS))) {
+        this.headers.set(name, value);
+      }
+    }
   }
 }
 
