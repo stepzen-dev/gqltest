@@ -7,7 +7,7 @@ endpoint =
 describe("basic-usage", function () {
   this.timeout(5000);
   this.slow(1000);
-  it("hero", async function () {
+  it("query", async function () {
     await gqltest.executeOK({
       test: this,
       endpoint,
