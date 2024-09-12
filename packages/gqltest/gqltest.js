@@ -164,6 +164,9 @@ function assertExpected(response, expected, label) {
 //
 // request takes precedence.
 // name is an alternative to label for the test name.
+//
+// If tests is a string then it is assumed to be a file
+// name containing JSON representing a list of tests.
 async function runtests(label, endpoint, headers, tests) {
   try {
     tests = optionalJSONFromFile(tests);
