@@ -137,7 +137,7 @@ async function execute({
 function assertExpected(response, expected, label) {
   expected = optionalJSONFromFile(expected, label);
 
-  // (2),(3) - Non-error response at the root.
+  // (2),(3) - Response at the root.
   if (Object.hasOwn(expected, "data")) {
     if  (Object.hasOwn(expected, "errors")) {
       chai.expect.fail("field errors in response not yet supported.")
