@@ -10,14 +10,18 @@ chai.use(chaiGraphQL);
 const {introspectionTests} = require("./_introspection.js");
 
 // GQLHeaders holds headers for a request.
+//
+// Default Accept and Content-Type (assuming POST requests) are added.
+//
 // The environment variable GQLTEST_HEADERS can be used
-// to add to headers during the constructure.
+// to add to headers during the constructor.
 //
 // GQLTEST_HEADERS='{"X-Trace": "abc"}' npm test
 class GQLHeaders {
   constructor() {
     this.headers = new Headers({
-      Accept: "application/json",
+      // Prefer new style GraphQL over HTTP response content type.
+      Accept: "application/graphql-response+json,application/json;q=0.8",
       "Content-Type": "application/json",
     });
     if (process.env.GQLTEST_HEADERS) {
