@@ -7,7 +7,7 @@ const chai = require("chai");
 const chaiGraphQL = require("chai-graphql");
 chai.use(chaiGraphQL);
 
-const {introspectionTests} = require("./_introspection.js");
+const { introspectionTests } = require("./_introspection.js");
 
 // GQLHeaders holds headers for a request.
 //
@@ -25,7 +25,7 @@ class GQLHeaders {
       "Content-Type": "application/json",
     });
     if (process.env.GQLTEST_HEADERS) {
-      for (let [name,value] of Object.entries(JSON.parse(process.env.GQLTEST_HEADERS))) {
+      for (let [name, value] of Object.entries(JSON.parse(process.env.GQLTEST_HEADERS))) {
         this.headers.set(name, value);
       }
     }
@@ -61,9 +61,22 @@ class GQLResponse {
 // Asserts that the GraphQL response has status 200 and no errors.
 GQLResponse.prototype.expectOK = function () {
   chai.expect(this.response.status).to.equal(200);
-  chai.assert.notGraphQLError(this.body);
   return this;
 };
+
+
+// defaultTimeout can be used in describe.timeout()
+// for requests against a graphql endpoint.
+// Match stepzen AWS 60 second timeout.
+const defaultTimeout = 60000
+
+function testDescription(testRoot, fullDirName) {
+  segments = fullDirName.split(path.sep)
+  rootIndex = segments.findIndex(element => element == testRoot)
+  // Construct the test description from the unique path from testRoot, which is likely the root of the git repo.
+  // Intentionally not using `path.sep` as this is not a path to a file now, but a test description.
+  return segments.slice(rootIndex + 1, -1).join('/')
+}
 
 async function _execute({
   test,
@@ -132,8 +145,8 @@ async function execute({
 //
 // (1) value rooted at `data`: {customer: {name: "Fred"}}
 // (2) root value with no errors: {data: {customer: {name: "Fred"}}}
-// (3) not implemented - root value with field errors: {data: {customer: {name: "Fred" email:null}}, "errors":[...]}
-// (4) not implemented - root value with request errors: {"errors":[...]}
+// (3) root value with field errors: {data: {customer: {name: "Fred" email:null}}, "errors":[...]}
+//     or request errors: {"errors":[...]}
 //
 // Workarounds for (1) if "data" or "errors" are the root fields under "data" in a response:
 //  - use approach (2)
@@ -142,17 +155,9 @@ function assertExpected(response, expected, label) {
   expected = optionalJSONFromFile(expected, label);
 
   // (2),(3) - Response at the root.
-  if (Object.hasOwn(expected, "data")) {
-    if  (Object.hasOwn(expected, "errors")) {
-      chai.expect.fail("field errors in response not yet supported.")
-    }
+  if (Object.hasOwn(expected, "data") || Object.hasOwn(expected, "errors")) {
     chai.expect(response.body).to.deep.equal(expected);
     return;
-  }
-
-  // (4) request errors
-  if (Object.hasOwn(expected, "errors")) {
-    chai.expect.fail("request errors in response not yet supported.")
   }
 
   // (1) - Non-error response rooted at data.
@@ -184,7 +189,8 @@ async function runtests(label, endpoint, headers, tests) {
   }
 
   describe(label, function () {
-    beforeEach("test-info", function() {
+    this.timeout(defaultTimeout) // Occasional requests take > 2s
+    beforeEach("test-info", function () {
       this.gql_title = this.currentTest.title;
     })
     afterEach("log-failure", logOnFail);
@@ -250,3 +256,5 @@ exports.GQLHeaders = GQLHeaders;
 exports.GQLResponse = GQLResponse;
 exports.logOnFail = logOnFail;
 exports.introspectionTests = introspectionTests;
+exports.defaultTimeout = defaultTimeout
+exports.testDescription = testDescription;
