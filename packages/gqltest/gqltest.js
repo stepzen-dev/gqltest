@@ -7,7 +7,7 @@ const chai = require("chai");
 const chaiGraphQL = require("chai-graphql");
 chai.use(chaiGraphQL);
 
-const {introspectionTests} = require("./_introspection.js");
+const { introspectionTests } = require("./_introspection.js");
 
 // GQLHeaders holds headers for a request.
 //
@@ -25,7 +25,7 @@ class GQLHeaders {
       "Content-Type": "application/json",
     });
     if (process.env.GQLTEST_HEADERS) {
-      for (let [name,value] of Object.entries(JSON.parse(process.env.GQLTEST_HEADERS))) {
+      for (let [name, value] of Object.entries(JSON.parse(process.env.GQLTEST_HEADERS))) {
         this.headers.set(name, value);
       }
     }
@@ -146,7 +146,7 @@ async function execute({
 // (1) value rooted at `data`: {customer: {name: "Fred"}}
 // (2) root value with no errors: {data: {customer: {name: "Fred"}}}
 // (3) root value with field errors: {data: {customer: {name: "Fred" email:null}}, "errors":[...]}
-//     or or request errors: {"errors":[...]}
+//     or request errors: {"errors":[...]}
 //
 // Workarounds for (1) if "data" or "errors" are the root fields under "data" in a response:
 //  - use approach (2)
@@ -155,7 +155,7 @@ function assertExpected(response, expected, label) {
   expected = optionalJSONFromFile(expected, label);
 
   // (2),(3) - Response at the root.
-  if ( Object.hasOwn(expected, "data") || Object.hasOwn(expected, "errors")) {
+  if (Object.hasOwn(expected, "data") || Object.hasOwn(expected, "errors")) {
     chai.expect(response.body).to.deep.equal(expected);
     return;
   }
@@ -190,7 +190,7 @@ async function runtests(label, endpoint, headers, tests) {
 
   describe(label, function () {
     this.timeout(defaultTimeout) // Occasional requests take > 2s
-    beforeEach("test-info", function() {
+    beforeEach("test-info", function () {
       this.gql_title = this.currentTest.title;
     })
     afterEach("log-failure", logOnFail);
