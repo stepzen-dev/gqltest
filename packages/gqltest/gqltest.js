@@ -176,6 +176,8 @@ function assertExpected(response, expected, label) {
 function expectFieldErrors(body, errors) {
   chai.assert.property(body, "errors");
   chai.assert.isArray(body.errors);
+  // response must have at least one error
+  chai.assert.isNotEmpty(body.errors)
   chai.assert.lengthOf(body.errors, errors.length);
   errors.forEach(function (e) {
     chai.assert.isArray(e.path, "error path must be an array");
