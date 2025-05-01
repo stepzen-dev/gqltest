@@ -131,18 +131,16 @@ async function execute({
 }
 
 // assertExpected supports these values for expected:
-// For example with this response:
 //
 // (1) value rooted at `data`: {customer: {name: "Fred"}}
 // (2) root value with no errors: {data: {customer: {name: "Fred"}}}
-// (3) not implemented - root value with field errors: {data: {customer: {name: "Fred" email:null}}, "errors":[...]}
+// (3) root value with field errors: {data: {customer: {name: "Fred" email:null}}, "errors":[...]}
 // (4) not implemented - root value with request errors: {"errors":[...]}
 //
 // Workarounds for (1) if "data" or "errors" are the root fields under "data" in a response:
 //  - use approach (2)
 //  - use aliases in request: {d:data e:errors}
 function assertExpected(response, expected, label) {
-
   // (2),(3) - Response at the root.
   if (Object.hasOwn(expected, "data")) {
     if (Object.hasOwn(expected, "errors")) {
@@ -183,9 +181,13 @@ function expectFieldErrors(body, errors) {
     chai.assert.isArray(e.path, "error path must be an array");
     let actual = body.errors.find((ae) => pathMatch(e.path, ae.path));
     if (actual === undefined) {
-      chai.expect.fail(`missing field error at path ${JSON.stringify(e.path)}`)
+      chai.expect.fail(`missing field error at path ${JSON.stringify(e.path)}`);
     }
-    chai.assert.equal(actual.message, e.message, `incorrect error message at path ${JSON.stringify(e.path)}`);
+    chai.assert.equal(
+      actual.message,
+      e.message,
+      `incorrect error message at path ${JSON.stringify(e.path)}`,
+    );
   });
 }
 
