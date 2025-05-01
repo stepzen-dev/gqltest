@@ -7,7 +7,7 @@ const chai = require("chai");
 const chaiGraphQL = require("chai-graphql");
 chai.use(chaiGraphQL);
 
-const {introspectionTests} = require("./_introspection.js");
+const { introspectionTests } = require("./_introspection.js");
 
 // GQLHeaders holds headers for a request.
 //
@@ -25,7 +25,9 @@ class GQLHeaders {
       "Content-Type": "application/json",
     });
     if (process.env.GQLTEST_HEADERS) {
-      for (let [name,value] of Object.entries(JSON.parse(process.env.GQLTEST_HEADERS))) {
+      for (let [name, value] of Object.entries(
+        JSON.parse(process.env.GQLTEST_HEADERS),
+      )) {
         this.headers.set(name, value);
       }
     }
@@ -120,43 +122,83 @@ async function execute({
   expected = undefined,
 }) {
   response = await _execute({ test, endpoint, request, method, headers });
-  response.expectOK();
   if (expected) {
     assertExpected(response, expected, test.gql_title);
+  } else {
+    response.expectOK();
   }
   return response;
 }
 
 // assertExpected supports these values for expected:
-// For example with this response:
 //
 // (1) value rooted at `data`: {customer: {name: "Fred"}}
 // (2) root value with no errors: {data: {customer: {name: "Fred"}}}
-// (3) not implemented - root value with field errors: {data: {customer: {name: "Fred" email:null}}, "errors":[...]}
+// (3) root value with field errors: {data: {customer: {name: "Fred" email:null}}, "errors":[...]}
 // (4) not implemented - root value with request errors: {"errors":[...]}
 //
 // Workarounds for (1) if "data" or "errors" are the root fields under "data" in a response:
 //  - use approach (2)
 //  - use aliases in request: {d:data e:errors}
 function assertExpected(response, expected, label) {
-  expected = optionalJSONFromFile(expected, label);
-
   // (2),(3) - Response at the root.
   if (Object.hasOwn(expected, "data")) {
-    if  (Object.hasOwn(expected, "errors")) {
-      chai.expect.fail("field errors in response not yet supported.")
+    if (Object.hasOwn(expected, "errors")) {
+      // Since data exists this must be a valid GraphQL response with 200
+      chai.expect(response.response.status).to.equal(200);
+      // chai.assert.graphQL expects no errors so remove errors from body
+      chai.assert.graphQL(
+        (({ errors, ...o }) => o)(response.body),
+        expected.data,
+      );
+      expectFieldErrors(response.body, expected.errors);
+      return;
     }
-    chai.expect(response.body).to.deep.equal(expected);
+    response.expectOK();
+    chai.assert.graphQL(response.body, expected.data);
     return;
   }
 
   // (4) request errors
   if (Object.hasOwn(expected, "errors")) {
-    chai.expect.fail("request errors in response not yet supported.")
+    // Since data does not exist, any errors must be request errors.
+    chai.expect(this.response.status).to.not.equal(200);
+    chai.expect.fail("request errors in response not yet supported.");
   }
 
   // (1) - Non-error response rooted at data.
+  response.expectOK();
   chai.assert.graphQL(response.body, expected);
+}
+
+// expectFieldErrors checks that the expected field errors exist.
+// chai.assert.graphQLError is not used as it assumes field errors are ordered which is not the case.
+function expectFieldErrors(body, errors) {
+  chai.assert.property(body, "errors");
+  chai.assert.isArray(body.errors);
+  // response must have at least one error
+  chai.assert.isNotEmpty(body.errors)
+  chai.assert.lengthOf(body.errors, errors.length);
+  errors.forEach(function (e) {
+    chai.assert.isArray(e.path, "error path must be an array");
+    let actual = body.errors.find((ae) => pathMatch(e.path, ae.path));
+    if (actual === undefined) {
+      chai.expect.fail(`missing field error at path ${JSON.stringify(e.path)}`);
+    }
+    chai.assert.equal(
+      actual.message,
+      e.message,
+      `incorrect error message at path ${JSON.stringify(e.path)}`,
+    );
+  });
+}
+
+function pathMatch(p1, p2) {
+  if (p1.length !== p2.length) return false;
+  for (let i = 0; i < p1.length; i++) {
+    if (p1[i] !== p2[i]) return false;
+  }
+  return true;
 }
 
 // List/Table driven testing using mocha.
@@ -184,9 +226,9 @@ async function runtests(label, endpoint, headers, tests) {
   }
 
   describe(label, function () {
-    beforeEach("test-info", function() {
+    beforeEach("test-info", function () {
       this.gql_title = this.currentTest.title;
-    })
+    });
     afterEach("log-failure", logOnFail);
     tests.forEach(
       ({
@@ -226,7 +268,7 @@ async function runtests(label, endpoint, headers, tests) {
             expected: expected,
           });
         });
-      }
+      },
     );
   });
 }
@@ -239,7 +281,7 @@ function optionalJSONFromFile(value, label) {
     return value;
   }
   if (label && fs.statSync(value).isDirectory()) {
-    value = path.join(value, `${label}.json`)
+    value = path.join(value, `${label}.json`);
   }
   return JSON.parse(fs.readFileSync(value, { encoding: "utf-8" }));
 }
