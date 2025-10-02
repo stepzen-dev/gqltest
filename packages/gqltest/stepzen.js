@@ -72,7 +72,7 @@ function runIntrospectionTests(endpoint, headers) {
   runtests(
     "introspection-apic-graphql",
     endpoint,
-    stepzen.regular(),
+    headers,
     introspectionTests,
   );
 }
