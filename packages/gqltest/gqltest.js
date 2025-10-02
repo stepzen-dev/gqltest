@@ -141,8 +141,8 @@ async function execute({
 //  - use approach (2)
 //  - use aliases in request: {d:data e:errors}
 function assertExpected(response, expected, label) {
-  expected = optionalJSONFromFile(expected);
-  
+  expected = optionalJSONFromFile(expected, label);
+
   // (2),(3) - Response at the root.
   if (Object.hasOwn(expected, "data")) {
     if (Object.hasOwn(expected, "errors")) {
