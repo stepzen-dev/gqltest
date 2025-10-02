@@ -147,10 +147,12 @@ function assertExpected(response, expected, label) {
       // Since data exists this must be a valid GraphQL response with 200
       chai.expect(response.response.status).to.equal(200);
       // chai.assert.graphQL expects no errors so remove errors from body
-      chai.assert.graphQL(
-        (({ errors, ...o }) => o)(response.body),
-        expected.data,
-      );
+      if (expected.data != null) {
+        chai.assert.graphQL(
+          (({ errors, ...o }) => o)(response.body),
+          expected.data,
+        );
+      }
       expectFieldErrors(response.body, expected.errors);
       return;
     }
