@@ -196,6 +196,9 @@ function expectFieldErrors(body, errors) {
       e.message,
       `incorrect error message at path ${JSON.stringify(e.path)}`,
     );
+    if (Object.hasOwn(e, "locations")) {
+      chai.expect(actual.locations).to.deep.equal(e.locations);
+    }
   });
 }
 
@@ -224,6 +227,9 @@ function expectRequestErrors(body, errors) {
       e.message,
       `incorrect request error message at index ${idx}`,
     );
+    if (Object.hasOwn(e, "locations")) {
+      chai.expect(actual.locations).to.deep.equal(e.locations);
+    }
   });
 }
 
