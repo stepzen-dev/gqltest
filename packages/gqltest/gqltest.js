@@ -152,6 +152,9 @@ function assertExpected(response, expected, label) {
           (({ errors, ...o }) => o)(response.body),
           expected.data,
         );
+      } else {
+        chai.assert.property(response.body, "data")
+        chai.assert.isNull(response.body.data)
       }
       expectFieldErrors(response.body, expected.errors);
       return;
