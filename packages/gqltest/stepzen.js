@@ -68,7 +68,7 @@ const introspectionTests = [
 
 // runIntrospectionTests runs standard gqltest and stepzen introspectionTests.
 function runIntrospectionTests(endpoint, headers) {
-  runtests("introspection", endpoint, headers, gqlintrospectionTests);
+  runtests("introspection", endpoint, headers, gqlIntrospectionTests);
   runtests(
     "introspection-apic-graphql",
     endpoint,
