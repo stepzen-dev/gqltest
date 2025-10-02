@@ -163,7 +163,8 @@ function assertExpected(response, expected, label) {
   if (Object.hasOwn(expected, "errors")) {
     // Since data does not exist, any errors must be request errors.
     chai.expect(this.response.status).to.not.equal(200);
-    chai.expect.fail("request errors in response not yet supported.");
+    expectRequestErrors(response.body, expected.errors);
+    return;
   }
 
   // (1) - Non-error response rooted at data.
@@ -199,6 +200,26 @@ function pathMatch(p1, p2) {
     if (p1[i] !== p2[i]) return false;
   }
   return true;
+}
+
+// expectRequestErrors checks that the expected request errors exist (in order).
+function expectRequestErrors(body, errors) {
+  chai.assert.property(body, "errors");
+  chai.assert.isArray(body.errors);
+  // response must have at least one error
+  chai.assert.isNotEmpty(body.errors)
+  chai.assert.lengthOf(body.errors, errors.length);
+  errors.forEach(function (e, idx) {
+    let actual = body.errors[idx];
+    if (!actual) {
+      chai.expect.fail(`missing request error at index ${idx}`);
+    }
+    chai.assert.equal(
+      actual.message,
+      e.message,
+      `incorrect request error message at index ${idx}`,
+    );
+  });
 }
 
 // List/Table driven testing using mocha.
