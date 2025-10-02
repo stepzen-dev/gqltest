@@ -4,18 +4,15 @@ const { GQLHeaders } = require("./gqltest.js");
 
 // assumption is that when testing against a StepZen instance the user is logged in.
 // For CI-CD see https://github.com/stepzen-dev/stepzen-login
-const adminKey = execSync(`stepzen whoami --adminkey`).toString().trim();
-const apiKey = execSync(`stepzen whoami --apikey`).toString().trim();
-const accessToken = execSync(`stepzen whoami --accesstoken`).toString().trim();
 
 // Returns GQLHeaders using the admin key.
 function admin() {
-  return new GQLHeaders().withAPIKey(adminKey);
+  return new GQLHeaders().withAPIKey(execSync(`stepzen whoami --adminkey`).toString().trim());
 }
 
 // Returns GQLHeaders using the apikey key.
 function regular() {
-  return new GQLHeaders().withAPIKey(apiKey);
+  return new GQLHeaders().withAPIKey(execSync(`stepzen whoami --apikey`).toString().trim());
 }
 
 // Returns GQLHeaders using the no authorization.
@@ -25,7 +22,7 @@ function public() {
 
 // Returns GQLHeaders using the access token key.
 function token() {
-  return new GQLHeaders().withToken(accessToken);
+  return new GQLHeaders().withToken(execSync(`stepzen whoami --accesstoken`).toString().trim());
 }
 
 // introspection tests is a collection of tests ensuring that introspection capabilities work.
