@@ -1,3 +1,6 @@
+# examples is fixed at main
+examples/starwars/package-lock.json
+
 # Logs
 logs
 *.log
