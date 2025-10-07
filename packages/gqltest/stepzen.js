@@ -3,8 +3,11 @@ const graphql = require("graphql");
 const {
   GQLHeaders,
   runtests,
-  inqtrospectionTests: gqlIntrospectionTests,
 } = require("./gqltest.js");
+
+const {
+  introspectionTests: gqlIntrospectionTests,
+} = require("./_introspection.js");
 
 // assumption is that when testing against a StepZen instance the user is logged in.
 // For CI-CD see https://github.com/stepzen-dev/stepzen-login
