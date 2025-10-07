@@ -2,7 +2,6 @@
 
 const fs = require("fs");
 const path = require("path");
-const fetch = require("node-fetch");
 const chai = require("chai");
 const chaiGraphQL = require("chai-graphql");
 chai.use(chaiGraphQL);
