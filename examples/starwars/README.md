@@ -9,6 +9,6 @@ https://stepzen-chester.us-east-a.ibm.stepzen.net/examples/starwars/graphql
 Run:
 
 ```
-npm ci
+npm install
 npm test
 ```
