@@ -1,6 +1,6 @@
 {
   "name": "stepzen-dev-gqltest",
-  "version": "0.0.1",
+  "version": "0.8.1",
   "dependencies": {
     "graphql": "^16.11.0",
     "chai": "4.3.6",
