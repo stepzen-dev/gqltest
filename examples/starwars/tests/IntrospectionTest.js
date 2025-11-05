@@ -11,6 +11,5 @@ describe("introspection", function () {
   // Note gqltest.runtests always adds in gqltest.logOnFail)
   // so no need to add it here.
   gqltest.runtests("standard", endpoint, stepzen.public(), gqltest.introspectionTests);
-  // public endpoint that doesn't have _service open.
-  // gqltest.runtests("stepzen", endpoint, stepzen.public(), stepzen.introspectionTests);
+  stepzen.runIntrospectionTests(endpoint, stepzen.public())
 });
