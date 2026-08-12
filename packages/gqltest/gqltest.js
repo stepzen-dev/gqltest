@@ -2,11 +2,20 @@
 
 const fs = require("fs");
 const path = require("path");
+const { fetch, Agent } = require("undici");
 const chai = require("chai");
 const chaiGraphQL = require("chai-graphql");
 chai.use(chaiGraphQL);
 
 const { introspectionTests } = require("./_introspection.js");
+
+// A module-level undici Agent with keepAlive disabled.
+// Node 22's built-in fetch (undici) pools connections by default; the load
+// balancer's idle timeout can silently close a pooled connection between test
+// requests, causing the next fetch to fail with ETIMEDOUT on a dead socket.
+// Disabling keepAlive forces a fresh TCP connection per request, which is safe
+// because test suites are not latency-sensitive.
+const _noKeepaliveDispatcher = new Agent({ connect: { keepAlive: false } });
 
 // GQLHeaders holds headers for a request.
 //
@@ -81,6 +90,7 @@ async function _execute({
     method: method,
     headers: headers.headers,
     body: JSON.stringify(request),
+    dispatcher: _noKeepaliveDispatcher,
   });
   test.gql_response = new GQLResponse(response, await response.json());
   return test.gql_response;
