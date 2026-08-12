@@ -9,13 +9,16 @@ chai.use(chaiGraphQL);
 
 const { introspectionTests } = require("./_introspection.js");
 
-// A module-level undici Agent with keepAlive disabled.
-// Node 22's built-in fetch (undici) pools connections by default; the load
-// balancer's idle timeout can silently close a pooled connection between test
-// requests, causing the next fetch to fail with ETIMEDOUT on a dead socket.
-// Disabling keepAlive forces a fresh TCP connection per request, which is safe
-// because test suites are not latency-sensitive.
-const _noKeepaliveDispatcher = new Agent({ connect: { keepAlive: false } });
+// A module-level undici Agent with pipelining disabled.
+// Node 22's built-in fetch (undici) pools connections by default (pipelining=1);
+// the load balancer's idle timeout can silently close a pooled connection between
+// test requests, causing the next fetch to fail with ETIMEDOUT on a dead socket.
+// pipelining=0 makes undici send 'connection: close' and never pool a socket,
+// forcing a fresh TCP connection per request. This is safe because test suites
+// are not latency-sensitive.
+// Note: connect.keepAlive only controls TCP SO_KEEPALIVE probes and does NOT
+// affect HTTP connection reuse — pipelining=0 is the correct option here.
+const _noKeepaliveDispatcher = new Agent({ pipelining: 0 });
 
 // GQLHeaders holds headers for a request.
 //
